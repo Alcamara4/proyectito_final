@@ -22,9 +22,9 @@ def cargar_config():
     if not os.path.exists(CONFIG_FILE):
         # Valores por defecto
         config['SETTINGS'] = {
-            'guardar_cada_horas': '1',
+            'guardar_cada_segundos': '3600',
             'ruta_log': BASE_DIR,
-            'cerrar_despues': 'True'
+            'cerrar_despues': 'False'
         }
         with open(CONFIG_FILE, 'w') as f:
             config.write(f)
@@ -75,20 +75,20 @@ def guardar_ip():
 def registro_periodico():
     while True:
         ip = guardar_ip()
-        if ip and config['SETTINGS'].getboolean('cerrar_despues', True):
+        if ip and config['SETTINGS'].getboolean('cerrar_despues', False):
             root.after(2000, root.destroy)
             break
-        horas = float(config['SETTINGS'].get('guardar_cada_horas', '1'))
-        time.sleep(horas * 3600)
+        segundos = float(config['SETTINGS'].get('guardar_cada_segundos', '3600'))
+        time.sleep(segundos)
 
 # --- Configuración desde el menú ---
-def configurar_horas():
-    horas = simpledialog.askfloat("Configurar", "Cada cuántas horas guardar la IP:",
-                                  initialvalue=float(config['SETTINGS'].get('guardar_cada_horas', '1')))
-    if horas is not None:
-        config['SETTINGS']['guardar_cada_horas'] = str(horas)
+def configurar_segundos():
+    segundos = simpledialog.askfloat("Configurar", "Cada cuántos segundos guardar la IP:",
+                                     initialvalue=float(config['SETTINGS'].get('guardar_cada_segundos', '3600')))
+    if segundos is not None:
+        config['SETTINGS']['guardar_cada_segundos'] = str(segundos)
         guardar_config(config)
-        messagebox.showinfo("Configuración", "Horas guardadas correctamente.")
+        messagebox.showinfo("Configuración", "Segundos guardados correctamente.")
 
 def configurar_ruta():
     carpeta = filedialog.askdirectory(initialdir=config['SETTINGS'].get('ruta_log', BASE_DIR),
@@ -118,7 +118,7 @@ tk.Label(root, textvariable=last_ip, font=("Arial", 12), justify="center").pack(
 config = cargar_config()
 menubar = tk.Menu(root)
 menu_config = tk.Menu(menubar, tearoff=0)
-menu_config.add_command(label="Intervalo de registro (horas)", command=configurar_horas)
+menu_config.add_command(label="Intervalo de registro (segundos)", command=configurar_segundos)
 menu_config.add_command(label="Ruta donde guardar log", command=configurar_ruta)
 menu_config.add_command(label="Cerrar app después de registrar", command=configurar_cierre)
 menubar.add_cascade(label="Configuración", menu=menu_config)
